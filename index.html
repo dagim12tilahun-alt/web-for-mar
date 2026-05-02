@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>miste · gentle persuasion</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f9f5ef 0%, #efe6dc 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: system-ui, 'Segoe UI', 'SF Pro Text', -apple-system, 'Inter', sans-serif;
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    /* minimalistic card */
+    .card {
+      max-width: 720px;
+      width: 100%;
+      background: rgba(255, 253, 245, 0.98);
+      border-radius: 3rem;
+      box-shadow: 0 25px 40px -14px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.03);
+      padding: 2.2rem 2rem 2.5rem;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(0px);
+      border: 1px solid #fff6ea;
+    }
+
+    /* intro container with SUPER slow animations */
+    .intro-container {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .intro-line {
+      font-size: 2rem;
+      font-weight: 480;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      color: #2c241a;
+      background: #fffcf5;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2.5rem;
+      display: inline-block;
+      box-shadow: inset 0 1px 2px #00000004, 0 6px 12px rgba(0, 0, 0, 0.02);
+    }
+
+    /* super slow fade-up animations for intro */
+    .line1 {
+      animation: gentleFadeUp 2.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(22px);
+      margin-bottom: 0.85rem;
+    }
+
+    .line2 {
+      animation: gentleFadeUp 2.4s 1.8s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+      opacity: 0;
+      transform: translateY(22px);
+      font-size: 1.8rem;
+    }
+
+    @keyframes gentleFadeUp {
+      0% { opacity: 0; transform: translateY(28px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* buttons + arrow layout — arrow sits BELOW the No button */
+    .interaction-zone {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+      margin: 1.2rem 0 1.2rem;
+      /* initially hidden, revealed after intro animations */
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
+    .interaction-zone.visible {
+      opacity: 1;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      position: relative;
+    }
+
+    .no-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .yes-btn-wrapper {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* big arrow container — appears only when state = 3, BELOW No button and ABOVE Yes button */
+    .arrow-down-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin: 0.25rem 0;
+      animation: fadePulse 0.7s ease;
+    }
+
+    .big-down-arrow {
+      font-size: 3rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      animation: arrowBounce 1.3s infinite ease;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.1));
+      letter-spacing: 0.1rem;
+      font-weight: 500;
+      background: rgba(255,245,235,0.5);
+      padding: 0.2rem 1rem;
+      border-radius: 60px;
+    }
+
+    @keyframes arrowBounce {
+      0% { transform: translateY(-4px); opacity: 0.8; }
+      50% { transform: translateY(8px); opacity: 1; }
+      100% { transform: translateY(-4px); opacity: 0.8; }
+    }
+
+    @keyframes fadePulse {
+      0% { opacity: 0; transform: scale(0.95);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+
+    button {
+      border: none;
+      background: #ffffffea;
+      backdrop-filter: blur(2px);
+      padding: 0.85rem 1.6rem;
+      font-size: 1.25rem;
+      font-weight: 520;
+      border-radius: 120px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05), 0 1px 1px rgba(0, 0, 0, 0.02);
+      color: #342a1f;
+      border: 0.5px solid #f0e2d0;
+      font-family: inherit;
+      min-width: 150px;
+    }
+
+    button:active {
+      transform: scale(0.97);
+      background: #fef7e8;
+    }
+
+    .yes-btn {
+      background: #fef0dd;
+      color: #3a2a1c;
+      border: 1px solid #ffe0b5;
+      font-weight: 560;
+      transition: all 0.2s ease-out;
+    }
+
+    .no-btn {
+      background: #f7ede2;
+      color: #4a3725;
+    }
+
+    /* hidden NO button (disappears after growth) */
+    .no-btn-hidden {
+      display: none !important;
+    }
+
+    /* original message area (now kept but not used for yes celebration) */
+    .message-area {
+      background: #fef9ef;
+      border-radius: 2rem;
+      padding: 0.9rem 1rem;
+      text-align: center;
+      font-size: 1.35rem;
+      font-weight: 480;
+      margin-top: 2rem;
+      color: #3f2e1d;
+      border: 1px solid #f5e5d3;
+      transition: all 0.2s;
+      min-height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* FULL-SCREEN OVERLAY for yes celebration */
+    .fullscreen-celebrate {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 248, 235, 0.96);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0s 0.5s;
+      font-family: inherit;
+    }
+
+    .fullscreen-celebrate.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease, visibility 0s 0s;
+    }
+
+    .celebrate-content {
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+
+    .fullscreen-celebrate.active .celebrate-content {
+      transform: scale(1);
+    }
+
+    .celebrate-text {
+      font-size: 3.5rem;
+      font-weight: 580;
+      color: #3a2a1c;
+      background: rgba(255, 255, 245, 0.9);
+      padding: 1.5rem 2.5rem;
+      border-radius: 4rem;
+      box-shadow: 0 25px 40px rgba(0,0,0,0.2);
+      letter-spacing: -0.01em;
+      backdrop-filter: blur(4px);
+      border: 1px solid #ffefdb;
+    }
+
+    .celebrate-text span {
+      display: inline-block;
+      animation: gentleWobble 0.5s ease infinite;
+    }
+
+    @keyframes gentleWobble {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @media (max-width: 600px) {
+      .celebrate-text {
+        font-size: 2.2rem;
+        padding: 1rem 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <!-- intro with two-stage super slow animation -->
+  <div class="intro-container">
+    <div class="intro-line line1">E miste</div>
+    <div class="intro-line line2">miste ነሻ ግን ?? 🤔</div>
+  </div>
+
+  <div class="interaction-zone" id="interactionZone">
+    <div class="button-group" id="buttonGroup">
+      <!-- No button wrapper -->
+      <div class="no-btn-wrapper">
+        <button class="no-btn" id="noBtn">No (ኣይ አደለሁም)</button>
+      </div>
+      
+      <!-- Arrow container (appears BELOW No button, above Yes button, only when state = 3) -->
+      <div id="arrowDownWrapper" style="display: none;" class="arrow-down-container">
+        <div class="big-down-arrow">👇 👇 👇</div>
+      </div>
+      
+      <!-- Yes button wrapper -->
+      <div class="yes-btn-wrapper">
+        <button class="yes-btn" id="yesBtn">Yes (አዎ ነኝ)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="message-area" id="messageBox">
+    <span>✨</span>  tap and see  <span>🌸</span>
+  </div>
+</div>
+
+<!-- Full-screen celebration overlay -->
+<div id="celebrateOverlay" class="fullscreen-celebrate">
+  <div class="celebrate-content">
+    <div class="celebrate-text">
+      good girl miste 😘 lol😁
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------- STATE MACHINE for NO button (exact labels + emojis) ----------
+  // state0: initial "No (ኣይ አደለሁም)"
+  // state1: "እርግጠኛ ነሽ mar😶"
+  // state2: "ere yidebiral lol"
+  // state3: "be a good girl and እዚጋ ንኪ🙃"   → downward arrow appears BELOW No button
+  // state4: "እንደውም መንካት አይቻልም እዚጋ😡"
+  // state5: "መንካት አይቻልም😎"   → from here, each press grows YES & eventually hides NO
+  let noState = 0;
+
+  // flag for arrow visibility (downward arrow)
+  let arrowVisible = false;
+  const arrowWrapper = document.getElementById('arrowDownWrapper');
+
+  // growth tracker for YES button (only increments when noState === 5)
+  let yesGrowthClicks = 0;
+  const GROWTH_THRESHOLD_HIDE_NO = 5;   // after 5 growth clicks, No button vanishes
+
+  // DOM elements
+  const noBtn = document.getElementById('noBtn');
+  const yesBtn = document.getElementById('yesBtn');
+  const messageBox = document.getElementById('messageBox');
+  const interactionZone = document.getElementById('interactionZone');
+  const celebrateOverlay = document.getElementById('celebrateOverlay');
+
+  // helper: show full-screen celebration with beautiful animation, auto-hide after 2.8s
+  function showFullScreenCelebration() {
+    // remove any existing active class to reset animation
+    celebrateOverlay.classList.remove('active');
+    // force reflow to restart animation
+    void celebrateOverlay.offsetWidth;
+    celebrateOverlay.classList.add('active');
+    
+    // auto-hide after 2.8 seconds
+    setTimeout(() => {
+      celebrateOverlay.classList.remove('active');
+    }, 2800);
+  }
+
+  // helper: show/hide downward arrow (pointing to Yes button, placed below No)
+  function updateArrowDisplay() {
+    if (noState === 3) {
+      arrowVisible = true;
+      arrowWrapper.style.display = 'flex';
+    } else {
+      arrowVisible = false;
+      arrowWrapper.style.display = 'none';
+    }
+  }
+
+  // update NO button text based on state
+  function updateNoButtonUI() {
+    switch(noState) {
+      case 0:
+        noBtn.textContent = "No (ኣይ አደለሁም)";
+        break;
+      case 1:
+        noBtn.textContent = "እርግጠኛ ነሽ mar😶";
+        break;
+      case 2:
+        noBtn.textContent = "ere yidebiral lol";
+        break;
+      case 3:
+        noBtn.textContent = "be a good girl and እዚጋ ንኪ🙃";
+        break;
+      case 4:
+        noBtn.textContent = "እንደውም መንካት አይቻልም እዚጋ😡";
+        break;
+      case 5:
+        noBtn.textContent = "መንካት አይቻልም😎";
+        break;
+      default: noBtn.textContent = "No (ኣይ አደለሁም)";
+    }
+    updateArrowDisplay();
+  }
+
+  // grow YES button (size, padding, and eventually hide NO)
+  function growYesButton() {
+    yesGrowthClicks++;
+    let newFontSize = 1.25 + (yesGrowthClicks * 0.28);
+    newFontSize = Math.min(newFontSize, 4.2);
+    yesBtn.style.fontSize = `${newFontSize}rem`;
+    yesBtn.style.padding = `0.85rem ${1.6 + yesGrowthClicks * 0.22}rem`;
+    yesBtn.style.fontWeight = yesGrowthClicks >= 3 ? '650' : '560';
+    yesBtn.style.transition = "all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)";
+
+    if (yesGrowthClicks >= GROWTH_THRESHOLD_HIDE_NO) {
+      if (noBtn && !noBtn.classList.contains('no-btn-hidden')) {
+        noBtn.classList.add('no-btn-hidden');
+        if (arrowVisible) {
+          arrowWrapper.style.display = 'none';
+          arrowVisible = false;
+        }
+      }
+    }
+  }
+
+  // ---------- YES click: show full-screen celebration (no message in old area) ----------
+  function onYesClick() {
+    // trigger full-screen beautiful celebration
+    showFullScreenCelebration();
+    // optional: keep the original message area unchanged (just neutral)
+    // but to keep it clean, no extra text there
+    messageBox.innerHTML = `<span>✨</span>  you're wonderful  <span>🌸</span>`;
+    // playful bounce on yes button
+    yesBtn.style.transform = 'scale(0.96)';
+    setTimeout(() => {
+      if (yesBtn) yesBtn.style.transform = '';
+    }, 120);
+    // arrow state remains untouched
+  }
+
+  // NO button: state machine + growth phase
+  function onNoClick() {
+    if (noBtn.classList.contains('no-btn-hidden')) return;
+
+    if (noState === 5) {
+      growYesButton();
+      return;
+    }
+
+    if (noState < 5) {
+      noState++;
+      updateNoButtonUI();
+    }
+  }
+
+  // reveal buttons after intro animations finish (super slow)
+  function revealButtons() {
+    interactionZone.classList.add('visible');
+  }
+
+  // intro total duration: line1 2.4s + line2 delay 1.8s then 2.4s = ~4.2s, plus a tiny buffer
+  const introTotalDuration = 4400;
+  setTimeout(revealButtons, introTotalDuration);
+
+  // reset interactive state (without affecting intro overlay)
+  function initGame() {
+    noState = 0;
+    yesGrowthClicks = 0;
+    arrowVisible = false;
+    arrowWrapper.style.display = 'none';
+    updateNoButtonUI();
+
+    yesBtn.style.fontSize = '';
+    yesBtn.style.padding = '';
+    yesBtn.style.fontWeight = '';
+    yesBtn.style.transform = '';
+    if (noBtn.classList.contains('no-btn-hidden')) noBtn.classList.remove('no-btn-hidden');
+    noBtn.style.display = '';
+    messageBox.innerHTML = `<span>✨</span>  tap and see  <span>🌸</span>`;
+    // ensure any leftover overlay is hidden
+    celebrateOverlay.classList.remove('active');
+  }
+
+  // event binding
+  noBtn.addEventListener('click', onNoClick);
+  yesBtn.addEventListener('click', onYesClick);
+
+  initGame();
+</script>
+</body>
+</html>
